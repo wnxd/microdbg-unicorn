@@ -10,7 +10,7 @@ import (
 #cgo CFLAGS: -O3
 #cgo LDFLAGS: -lunicorn
 #cgo linux LDFLAGS: -lrt
-#include "unicorn/unicorn.h"
+#include "uc.h"
 */
 import "C"
 
@@ -109,11 +109,11 @@ func (u *unicorn) MemWrite(addr uint64, data []byte) error {
 }
 
 func (u *unicorn) MemReadPtr(addr, size uint64, ptr unsafe.Pointer) error {
-	return errCheck(C.uc_mem_read(u.handle, C.uint64_t(addr), ptr, C.size_t(size)))
+	return errCheck(C.mem_read(u.handle, C.uint64_t(addr), C.uintptr_t(uintptr(ptr)), C.size_t(size)))
 }
 
 func (u *unicorn) MemWritePtr(addr, size uint64, ptr unsafe.Pointer) error {
-	return errCheck(C.uc_mem_write(u.handle, C.uint64_t(addr), ptr, C.size_t(size)))
+	return errCheck(C.mem_write(u.handle, C.uint64_t(addr), C.uintptr_t(uintptr(ptr)), C.size_t(size)))
 }
 
 func (u *unicorn) RegRead(reg emulator.Reg) (uint64, error) {
