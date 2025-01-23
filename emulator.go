@@ -11,6 +11,8 @@ import (
 #cgo LDFLAGS: -lunicorn
 #cgo linux LDFLAGS: -lrt
 #include "uc.h"
+#include "unicorn/arm.h"
+#include "unicorn/arm64.h"
 */
 import "C"
 
@@ -37,6 +39,16 @@ func New(arch emulator.Arch) (emulator.Emulator, error) {
 	var handle *C.uc_engine
 	err := errCheck(C.uc_open(uc_arch, uc_mode, &handle))
 	if err != nil {
+		return nil, err
+	}
+	switch arch {
+	case emulator.ARCH_ARM:
+		err = errCheck(C.set_cpu_model(handle, C.UC_CPU_ARM_MAX))
+	case emulator.ARCH_ARM64:
+		err = errCheck(C.set_cpu_model(handle, C.UC_CPU_ARM64_MAX))
+	}
+	if err != nil {
+		C.uc_close(handle)
 		return nil, err
 	}
 	u := &unicorn{arch: arch, handle: handle}
